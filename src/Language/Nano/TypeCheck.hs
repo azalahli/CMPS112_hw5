@@ -40,7 +40,13 @@ instance HasTVars Type where
 
 -- | Free type variables of a poly-type (remove forall-bound vars)
 instance HasTVars Poly where
-  freeTVars s     = (freeTVars s)
+  freeTVars (Mono x)     = case x of
+    TInt    -> freeTVars (TInt)
+    TBool   -> freeTVars (TBool)
+    TVar y  -> freeTVars (TVar y)
+    (t1 :=> t2) -> freeTVars ((t1 :=> t2))
+    (TList t)   -> (freeTVars t)
+  freeTVars (Forall x _)   = error "something"
   -- this should be mono types?
   --freeTVars (Forall (TVar x) (Poly _) ) = [x]
 
@@ -85,8 +91,11 @@ class Substitutable a where
   apply :: Subst -> a -> a
   
 -- | Apply substitution to type
+-- [] t = type
 instance Substitutable Type where  
-  apply sub t         = error "TBD: type apply"
+  apply sub t         = 
+    case (freeTVars t) of
+        x:xs -> lookupTVar x sub
 
 -- | Apply substitution to poly-type
 instance Substitutable Poly where    
