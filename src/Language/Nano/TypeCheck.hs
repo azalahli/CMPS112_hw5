@@ -40,7 +40,9 @@ instance HasTVars Type where
 
 -- | Free type variables of a poly-type (remove forall-bound vars)
 instance HasTVars Poly where
-  freeTVars s     = error "i don't get this"
+  freeTVars s     = (freeTVars s)
+  -- this should be mono types?
+  --freeTVars (Forall (TVar x) (Poly _) ) = [x]
 
 -- | Free type variables of a type environment
 instance HasTVars TypeEnv where
@@ -60,12 +62,24 @@ extendTypeEnv x s gamma = (x,s) : gamma
 -- | Lookup a type variable in a substitution;
 --   if not present, return the variable unchanged
 lookupTVar :: TVar -> Subst -> Type
-lookupTVar a sub = error "TBD: lookupTVar"
+lookupTVar a [] = (TVar a)
+lookupTVar a (x:xs) 
+    | a == fst(x) = snd(x)
+    | (xs) == [] = (TVar a)
+    | otherwise = (lookupTVar a xs)
 
 -- | Remove a type variable from a substitution
 removeTVar :: TVar -> Subst -> Subst
-removeTVar a sub = error "TBD: removeTVar"
-     
+removeTVar a xs = (L.filter (\x1 -> fst(x1) /= a) (xs))
+   -- | error "wewp wewp"
+   -- |
+   -- |
+
+{-}
+    | (xs) == [] = xs
+    | a == fst(x) = (L.filter (\x1 -> fst(x1) /= a) (x:xs))
+    | otherwise = (removeTVar a (xs ++ [x] ) )
+    -}   
 -- | Things to which type substitutions can be apply
 class Substitutable a where
   apply :: Subst -> a -> a
