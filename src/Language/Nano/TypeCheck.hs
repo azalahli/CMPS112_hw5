@@ -35,7 +35,8 @@ instance HasTVars Type where
   freeTVars (TInt)          = []
   freeTVars (TBool)         = []
   freeTVars (TVar x)        = [x]
-  freeTVars (t1 :=> t2)     = (freeTVars t1) ++ (freeTVars t2)
+  freeTVars (t1 :=> t2)     = L.nub ((freeTVars t1) ++ (freeTVars t2))
+  --L.delete?
   freeTVars (TList t)       = (freeTVars t)
 
 -- | Free type variables of a poly-type (remove forall-bound vars)
@@ -46,8 +47,11 @@ instance HasTVars Poly where
     TVar y  -> freeTVars (TVar y)
     (t1 :=> t2) -> freeTVars ((t1 :=> t2))
     (TList t)   -> (freeTVars t)
-  freeTVars (Forall x _)   = error "something"
+  freeTVars (Forall x y)   = case x of
+    x -> L.nub ([x] ++ (freeTVars y))
+    _ -> error "error"
   -- this should be mono types?
+  --poly is probably supposed to be recursively parsed and appended down to a single mono case?
   --freeTVars (Forall (TVar x) (Poly _) ) = [x]
 
 -- | Free type variables of a type environment
