@@ -49,6 +49,7 @@ instance HasTVars Poly where
     (TList t)   -> (freeTVars t)
   freeTVars (Forall x y)   = case x of
     x -> L.nub ([x] ++ (freeTVars y))
+    -- is this supposed to be l.delete x from y?
     _ -> error "error"
   -- this should be mono types?
   --poly is probably supposed to be recursively parsed and appended down to a single mono case?
