@@ -99,9 +99,15 @@ class Substitutable a where
 -- [] t = type
 instance Substitutable Type where  
   apply sub t         = 
-    case (freeTVars t) of
-        x:xs -> lookupTVar x sub
-
+    case t of
+        (TInt)    -> TInt
+        (TBool)   -> TBool
+        (TVar a)  -> (lookupTVar a sub)
+        --type type needs something to convert to tvar
+        --(t1 :=> t2) -> freeTVars ((t1 :=> t2))
+        (TList a)   -> TList (apply sub a)
+--case T of
+    -- List etc.
 -- | Apply substitution to poly-type
 instance Substitutable Poly where    
   apply sub s         = error "TBD: poly apply"
