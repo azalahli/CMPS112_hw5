@@ -133,7 +133,10 @@ instance Substitutable TypeEnv where
       
 -- | Extend substitution with a new type assignment
 extendSubst :: Subst -> TVar -> Type -> Subst
-extendSubst sub a t = error "TBD: extendSubst"
+extendSubst sub a t = (a,t):(apply [(a,t)] sub)
+    --if sub == apply [(a,t)] sub
+    --then (a,t):sub
+    --else apply [(a,t)] sub
       
 --------------------------------------------------------------------------------
 -- Problem 2: Unification
