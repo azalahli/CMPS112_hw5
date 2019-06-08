@@ -104,13 +104,19 @@ instance Substitutable Type where
         (TBool)   -> TBool
         (TVar a)  -> (lookupTVar a sub)
         --type type needs something to convert to tvar
-        --(t1 :=> t2) -> freeTVars ((t1 :=> t2))
+        (t1 :=> t2) -> (apply sub t1) :=> (apply sub t2)
         (TList a)   -> TList (apply sub a)
 --case T of
     -- List etc.
 -- | Apply substitution to poly-type
 instance Substitutable Poly where    
-  apply sub s         = error "TBD: poly apply"
+  apply sub (Mono a)     = case a of
+    TInt -> Mono TInt
+    TBool-> Mono TBool
+    (TVar x) -> Mono (lookupTVar x sub)
+    (t1 :=> t2) -> Mono ((apply sub t1) :=> (apply sub t2))
+    (TList x) -> Mono (TList (apply sub x))
+  --apply sub (Forall x y) =
 
 -- | Apply substitution to (all poly-types in) another substitution
 instance Substitutable Subst where  
