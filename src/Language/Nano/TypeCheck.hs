@@ -206,8 +206,8 @@ unify (InferState sub n) t1 (TVar a)
 --------------------------------------------------------------------------------    
   
 infer :: InferState -> TypeEnv -> Expr -> (InferState, Type)
-infer st _   (EInt _)          = error "TBD: infer EInt"
-infer st _   (EBool _)         = error "TBD: infer EBool"
+infer st _   (EInt _)          = (st, TInt)
+infer st _   (EBool _)         = (st, TBool)
 infer st gamma (EVar x)        = error "TBD: infer EVar"
 infer st gamma (ELam x body)   = error "TBD: infer ELam"
 infer st gamma (EApp e1 e2)    = error "TBD: infer EApp"
