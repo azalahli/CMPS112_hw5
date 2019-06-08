@@ -208,9 +208,26 @@ unify (InferState sub n) t1 (TVar a)
 infer :: InferState -> TypeEnv -> Expr -> (InferState, Type)
 infer st _   (EInt _)          = (st, TInt)
 infer st _   (EBool _)         = (st, TBool)
-infer st gamma (EVar x)        = error "TBD: infer EVar"
-infer st gamma (ELam x body)   = error "TBD: infer ELam"
-infer st gamma (EApp e1 e2)    = error "TBD: infer EApp"
+infer (InferState sub n) gamma (EVar x)        = ((InferState sub n), (lookupTVar x sub) )
+infer (InferState sub n) gamma (ELam x body)   = ((InferState s1 n ), tX' :=> tBody)
+        where
+            tEnv' = extendTypeEnv x (Mono tX) gamma
+            tX = freshTV n 
+            ( (InferState s1 a) , tBody) = (infer (InferState sub (n+1) ) tEnv' body)
+            tX' = (apply s1 tX)
+            {-
+            tEnv' = extendTypeEnv x tX gamma
+            tX = freshTV n 
+            (sub1, tBody) = infer (InferState sub (n+1) ) tEnv' body
+            tX' = apply sub1 tX
+            -}
+infer st gamma (EApp e1 e2)    = error ">_>"
+    
+    
+    --do 
+    --((InferState s1 n1), w1) <- (infer st gamma e1)
+    --((InferState s2 n2), w2) <- (infer st gamma e2)
+    --return (TInt)
 infer st gamma (ELet x e1 e2)  = error "TBD: infer ELet"
 infer st gamma (EBin op e1 e2) = infer st gamma asApp
   where
@@ -222,9 +239,20 @@ infer st gamma (EIf c e1 e2) = infer st gamma asApp
     ifVar = EVar "if"    
 infer st gamma ENil = infer st gamma (EVar "[]")
 
+--type TypeEnv = [(Id, Poly)]
 -- | Generalize type variables inside a type
 generalize :: TypeEnv -> Type -> Poly
-generalize gamma t = error "TBD: generalize"
+generalize gamma t = 
+
+--lookupPoly x y = 
+            {-
+lookupTVar :: TVar -> Subst -> Type
+lookupTVar a [] = (TVar a)
+lookupTVar a (x:xs) 
+| a == fst(x) = snd(x)
+| (xs) == [] = (TVar a)
+| otherwise = (lookupTVar a xs)
+            -}
     
 -- | Instantiate a polymorphic type into a mono-type with fresh type variables
 instantiate :: Int -> Poly -> (Int, Type)
@@ -234,16 +262,16 @@ instantiate n s = error "TBD: instantiate"
 preludeTypes :: TypeEnv
 preludeTypes =
   [ ("+",    Mono $ TInt :=> TInt :=> TInt)
-  , ("-",    error "TBD: -")
-  , ("*",    error "TBD: *")
-  , ("/",    error "TBD: /")
-  , ("==",   error "TBD: ==")
-  , ("!=",   error "TBD: !=")
-  , ("<",    error "TBD: <")
-  , ("<=",   error "TBD: <=")
-  , ("&&",   error "TBD: &&")
-  , ("||",   error "TBD: ||")
-  , ("if",   error "TBD: if")
+  , ("-",    Mono $ TInt :=> TInt :=> TInt)
+  , ("*",    Mono $ TInt :=> TInt :=> TInt)
+  , ("/",    Mono $ TInt :=> TInt :=> TInt)
+  , ("==",   Mono $ (TVar "q") :=> (TVar "q") :=> TInt)
+  , ("!=",   Mono $ (TVar "q") :=> (TVar "q") :=> TInt)
+  , ("<",    Mono $ TBool :=> TBool :=> TBool)
+  , ("<=",   Mono $ TBool :=> TBool :=> TBool)
+  , ("&&",   Mono $ TBool :=> TBool :=> TBool)
+  , ("||",   Mono $ TBool :=> TBool :=> TBool)
+  , ("if",   Mono $ TBool :=> (TVar "q") :=> (TVar "q") :=> (TVar "q"))
   -- lists: 
   , ("[]",   error "TBD: []")
   , (":",    error "TBD: :")
