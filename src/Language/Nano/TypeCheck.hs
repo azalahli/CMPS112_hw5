@@ -162,10 +162,10 @@ extendState (InferState sub n) a t = InferState (extendSubst sub a t) n
 --   if successful return an updated state, otherwise throw an error
 unifyTVar :: InferState -> TVar -> Type -> InferState
 unifyTVar (InferState sub n) a t 
-    | (TVar a) == t = (InferState sub n)
+    | (TVar a) == t = (InferState (removeTVar a sub) n)
     -- | (lookupTVar a sub) /= a = error ("type error:"
     | L.elem a (freeTVars t) = error ("type error: cannot unify " ++ (show a) ++ " and " ++ (show t) ++ " (occurs check)" )
-    | otherwise = extendState (InferState sub n) a t
+    | otherwise = extendState (InferState (removeTVar a sub) n) a t
     
     {-}
     case t of
@@ -182,8 +182,25 @@ unifyTVar (InferState sub n) a t
 -- | Unify two types;
 --   if successful return an updated state, otherwise throw an error
 unify :: InferState -> Type -> Type -> InferState
-unify st t1 t2 = error "TBD: unify"
+unify (InferState sub n) t1 t2 
+    | t1 == t2 = (InferState sub n)
+unify (InferState sub n) (TVar x) t2 = unifyTVar (InferState (removeTVar x sub) n) x t2
+unify (InferState sub n) t2 (TVar x) = unifyTVar (InferState (removeTVar x sub) n) x t2
+unify (InferState sub n) (TList x) (TList y) = unify (InferState sub n) x y
+unify (InferState sub n) (q1 :=> q2) (q3 :=> q4) = unify (unify (InferState sub n) q1 q3) q2 q4
+unify _ n m = error ("type error: cannot unify " ++ (show n) ++ " and " ++ (show m) ++ " (occurs check)" )
+    
+    -- | otherwise = error ("type error: cannot unify " ++ (show t1) ++ " and " ++ (show t2) ++ " (occurs check)" )
+    --if t1 == t2 then (InferState sub n) else
+    --error ("type error: cannot unify " ++ (show t1) ++ " and " ++ (show t2) ++ " (occurs check)" )
+    -- | t1 == t2 = (InferState sub n)
 
+{-}
+    unify (InferState sub n) (TVar a) t2
+    | otherwise = unifyTVar (InferState sub n) (TVar a) t2
+unify (InferState sub n) t1 (TVar a)
+    | otherwise = unifyTVar (InferState sub n) (TVar a) t1
+-}
 --------------------------------------------------------------------------------
 -- Problem 3: Type Inference
 --------------------------------------------------------------------------------    
