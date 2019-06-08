@@ -161,7 +161,23 @@ extendState (InferState sub n) a t = InferState (extendSubst sub a t) n
 -- | Unify a type variable with a type; 
 --   if successful return an updated state, otherwise throw an error
 unifyTVar :: InferState -> TVar -> Type -> InferState
-unifyTVar st a t = error "TBD: unifyTVar"
+unifyTVar (InferState sub n) a t 
+    | (TVar a) == t = (InferState sub n)
+    -- | (lookupTVar a sub) /= a = error ("type error:"
+    | L.elem a (freeTVars t) = error ("type error: cannot unify " ++ (show a) ++ " and " ++ (show t) ++ " (occurs check)" )
+    | otherwise = extendState (InferState sub n) a t
+    
+    {-}
+    case t of
+    TInt -> st
+    TBool -> st
+    (TVar x) -> extendState st a t
+    (t1 :=> t2) -> extendState st a t
+    (TList x) -> extendState st a t
+    -}
+    --if True
+    --then extendState st a t
+    --else error ("type error: cannot unify" ++ (show a) ++ "and" ++ (show t) ++ "(occurs check)" )
     
 -- | Unify two types;
 --   if successful return an updated state, otherwise throw an error
