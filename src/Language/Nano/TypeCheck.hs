@@ -48,7 +48,7 @@ instance HasTVars Poly where
     (t1 :=> t2) -> freeTVars ((t1 :=> t2))
     (TList t)   -> (freeTVars t)
   freeTVars (Forall x y)   = case x of
-    x -> L.nub ([x] ++ (freeTVars y))
+    x -> L.delete x (freeTVars y)
     -- is this supposed to be l.delete x from y?
     _ -> error "error"
   -- this should be mono types?
@@ -110,13 +110,14 @@ instance Substitutable Type where
     -- List etc.
 -- | Apply substitution to poly-type
 instance Substitutable Poly where    
-  apply sub (Mono a)     = case a of
-    TInt -> Mono TInt
-    TBool-> Mono TBool
-    (TVar x) -> Mono (lookupTVar x sub)
-    (t1 :=> t2) -> Mono ((apply sub t1) :=> (apply sub t2))
-    (TList x) -> Mono (TList (apply sub x))
-  --apply sub (Forall x y) =
+    apply sub (Mono a)     = case a of
+        TInt -> (Mono TInt)
+        TBool-> (Mono TBool)
+        (TVar x) -> (Mono (lookupTVar x sub))
+        (t1 :=> t2) -> (Mono ((apply sub t1) :=> (apply sub t2)))
+        (TList x) -> (Mono (TList (apply sub x)))
+    apply sub (Forall x y) = Forall x (apply (removeTVar x sub) y)
+
 
 -- | Apply substitution to (all poly-types in) another substitution
 instance Substitutable Subst where  
