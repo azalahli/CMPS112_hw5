@@ -221,7 +221,7 @@ infer (InferState sub n) gamma (ELam x body)   = ((InferState s1 n ), tX' :=> tB
             (sub1, tBody) = infer (InferState sub (n+1) ) tEnv' body
             tX' = apply sub1 tX
             -}
-infer st gamma (EApp e1 e2)    = error ">_>"
+infer st gamma (EApp e1 e2)    = error ">_> abandoned"
     
     
     --do 
@@ -242,7 +242,7 @@ infer st gamma ENil = infer st gamma (EVar "[]")
 --type TypeEnv = [(Id, Poly)]
 -- | Generalize type variables inside a type
 generalize :: TypeEnv -> Type -> Poly
-generalize gamma t = 
+generalize gamma t = error "welp"
 
 --lookupPoly x y = 
             {-
